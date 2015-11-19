@@ -17,7 +17,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        addTestData()
+        
+        let fetchRequest = NSFetchRequest(entityName: "Device")
+        
+        do {
+            if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [NSManagedObject] {
+                for result in results {
+                    if let deviceType = result.valueForKey("deviceType") as? String, name = result.valueForKey("name") as? String {
+                        print("Got \(deviceType) named \(name)")
+                    }
+                }
+            }
+        } catch {
+            print("There was a fetch error!")
+        }
+        
         return true
+    }
+    
+    func addTestData() {
+        guard let entity = NSEntityDescription.entityForName("Device", inManagedObjectContext: managedObjectContext) else {
+            fatalError("Could not find entity description!")
+        }
+        
+        for i in 1...25 {
+            let device = NSManagedObject(entity: entity, insertIntoManagedObjectContext: managedObjectContext)
+            
+            device.setValue("Some Device #\(i)", forKey: "name")
+            device.setValue(i % 3 == 0 ? "Watch" : "iPhone", forKey: "deviceType")
+        }
     }
 
     func applicationWillResignActive(application: UIApplication) {
