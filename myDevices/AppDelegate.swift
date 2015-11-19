@@ -34,13 +34,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             print("There was a fetch error!")
         }
         
+        
+        let personFetchRequest = NSFetchRequest(entityName: "Person")
+        
+        do {
+            if let results = try managedObjectContext.executeFetchRequest(personFetchRequest) as? [NSManagedObject] {
+                for result in results {
+                    if let name = result.valueForKey("name") as? String {
+                        print("Got a Person named \(name)")
+                    }
+                }
+            }
+        } catch {
+        print("There was a fetch error!")
+        }
+        
+
+        
         return true
     }
-    
+
+
     func addTestData() {
-        guard let entity = NSEntityDescription.entityForName("Device", inManagedObjectContext: managedObjectContext) else {
+        guard let entity = NSEntityDescription.entityForName("Device", inManagedObjectContext: managedObjectContext),
+            personEntity = NSEntityDescription.entityForName("Person", inManagedObjectContext: managedObjectContext)
+                else {
             fatalError("Could not find entity description!")
         }
+        
+        
+        let bob = NSManagedObject(entity: personEntity, insertIntoManagedObjectContext: managedObjectContext)
+        bob.setValue("Bob", forKey: "name")
+        let jane = NSManagedObject(entity: personEntity, insertIntoManagedObjectContext: managedObjectContext)
+        jane.setValue("Jane", forKey: "name")
+        
         
         for i in 1...25 {
             let device = NSManagedObject(entity: entity, insertIntoManagedObjectContext: managedObjectContext)
